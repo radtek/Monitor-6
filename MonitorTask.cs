@@ -47,46 +47,12 @@ namespace JabamiYumeko
         {
             ControlService_Request config = new ControlService_Request();
             ByteFormatter.Deserialize(config, args.Buffer, ProtocolHead.HeadSize);
-            Host host = null;
-            using (MySqlConnection con = new MySqlConnection(AppConfig.Config.GetValue<string>("mysql")))
+            Host host;
+            using (MySQLContext context = MySQLContext.CreateContext())
             {
-                try
-                {
-                    con.Open();
-                    MySqlCommand hostCmd = new MySqlCommand(
-                        $"Select Ip,Port,UserName,Password,OS From t_oms_host where Ip='{config.Ip}'", con);
-                    MySqlDataReader hostReader = hostCmd.ExecuteReader();
-                    while (hostReader.Read())
-                    {
-                        string ip = hostReader[0].ToString();
-                        ushort port = Convert.ToUInt16(hostReader[1]);
-                        string userName = hostReader[2].ToString();
-                        string password = hostReader[3].ToString();
-                        int os = Convert.ToInt32(hostReader[4]);
-                        if (Enum.IsDefined(typeof(OperationSystem), os))
-                        {
-                            host = new Host
-                            {
-                                Ip = ip,
-                                Port = port,
-                                UserName = userName,
-                                Password = password,
-                                OS = (OperationSystem)os
-                            };
-                        }
-                        else
-                        {
-                            LogPool.Logger.LogInformation("unknown os {0} {1}", ip, os);
-                        }
-                    }
-                    hostReader.Close();
-                }
-                catch (MySqlException ex)
-                {
-                    LogPool.Logger.LogInformation(ex, "mysql");
-                }
+                host=context.Hosts.FirstOrDefault(h => h.Ip == config.Ip);
             }
-
+          
             if (host != null)
             {
                 Performance performance;
