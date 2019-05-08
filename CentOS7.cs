@@ -91,7 +91,7 @@ namespace JabamiYumeko
             //即使服务停止也可以读取出pid但是无效
             if (service.Status == (byte)ServiceStatus.Running)
             {
-                result=client.RunCommand(string.Format("ps -aux|grep {0} |awk -- '{{print $3}}'", service.Pid)).Execute();
+                result=client.RunCommand($"ps -aux|grep {service.Pid} |awk -- '{{print $3}}'").Execute();
 
                 rows =result.Split("\n", StringSplitOptions.RemoveEmptyEntries);
                 if (rows.Length>0)
@@ -113,23 +113,23 @@ namespace JabamiYumeko
             string cmd;
             if (request.Op == (byte)ServiceConfig.Start)
             {
-                cmd = string.Format("systemctl start {0}", request.Name);
+                cmd = $"systemctl start {request.Name}";
             }
             else if (request.Op == (byte)ServiceConfig.Stop)
             {
-                cmd = string.Format("systemctl stop {0}", request.Name);
+                cmd = $"systemctl stop {request.Name}";
             }
             else if(request.Op==(byte)ServiceConfig.Restart)
             {
-                cmd = string.Format("systemctl restart {0}", request.Name);
+                cmd = $"systemctl restart {request.Name}";
             }
             else if (request.Op == (byte)ServiceConfig.Auto)
             {
-                cmd = string.Format("systemctl enable {0}", request.Name);
+                cmd = $"systemctl enable {request.Name}";
             }
             else if (request.Op == (byte)ServiceConfig.Demand)
             {
-                cmd = string.Format("systemctl disable {0}", request.Name);
+                cmd = $"systemctl disable {request.Name}";
             }
             else
             {
